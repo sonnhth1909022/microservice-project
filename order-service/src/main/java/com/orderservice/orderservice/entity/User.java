@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "users")
 @ToString
-public class User {
+public class User extends BaseEntity{
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2",

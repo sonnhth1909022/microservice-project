@@ -14,7 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "orders")
 @ToString
-public class Order {
+public class Order extends BaseEntity{
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2",
