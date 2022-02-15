@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 @ToString
 public class CartItem {
     private long productId;
-    private String name;
+    private String productName;
     private int quantity;
     private String thumbnail;
-    private BigDecimal unitPrice;
+    private double unitPrice;
 }

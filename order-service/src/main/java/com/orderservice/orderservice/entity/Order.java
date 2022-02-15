@@ -20,11 +20,11 @@ public class Order extends BaseEntity{
     @GenericGenerator(name = "uuid2",
             parameters = @org.hibernate.annotations.Parameter(name = "prefix", value = "ORDER")
             , strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id",columnDefinition = "VARCHAR(60)")
+    @Column(name = "order_id",columnDefinition = "VARCHAR(60)")
     private String orderId;
 
     private long userId;
-    private BigDecimal totalPrice;
+    private double totalPrice;
     private String address;
     private String name;
     private String phone;

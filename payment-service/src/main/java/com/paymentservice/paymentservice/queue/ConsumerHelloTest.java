@@ -7,7 +7,7 @@ import static com.paymentservice.paymentservice.queue.Config.QUEUE_ORDER;
 import static com.paymentservice.paymentservice.queue.Config.ROUTING_KEY_ORDER;
 
 @Component
-public class Consumer {
+public class ConsumerHelloTest {
     @RabbitListener(queues = {QUEUE_ORDER})
     public void getMessage(String message){
         System.out.println("Received topic 1 (" + ROUTING_KEY_ORDER + ") message: " + message);

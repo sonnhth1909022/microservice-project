@@ -18,8 +18,8 @@ public class User extends BaseEntity{
     @GenericGenerator(name = "uuid2",
             parameters = @org.hibernate.annotations.Parameter(name = "prefix", value = "ORDER")
             , strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id",columnDefinition = "VARCHAR(60)")
-    private String userToken;
+    @Column(name = "user_id",columnDefinition = "VARCHAR(60)")
+    private String userId;
 
     private String userName;
 }

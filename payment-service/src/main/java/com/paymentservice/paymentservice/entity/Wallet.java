@@ -16,5 +16,6 @@ public class Wallet extends BaseEntity{
     private long id;
 
     private String userId;
+    private long bankNumber;
     private String balance;
 }

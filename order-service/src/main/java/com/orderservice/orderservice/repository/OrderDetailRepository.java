@@ -1,4 +1,7 @@
 package com.orderservice.orderservice.repository;
 
-public interface OrderDetailRepository {
+import com.orderservice.orderservice.entity.OrderDetail;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
 }

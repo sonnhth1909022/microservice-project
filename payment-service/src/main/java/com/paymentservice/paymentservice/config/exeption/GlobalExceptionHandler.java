@@ -50,4 +50,13 @@ public class GlobalExceptionHandler {
                 .setDetail(exception.getBindingResult().getFieldError().getDefaultMessage()).build();
         return new ResponseEntity<>(restResponse, HttpStatus.BAD_REQUEST);
     }
+
+    //handling RuntimeException
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(RuntimeException ex)
+    {
+        HashMap<String, Object> restResponse =
+                new RESTResponse.Error().setStatus(HttpStatus.BAD_REQUEST.value()).setMessage(ex.getLocalizedMessage()).build();
+        return new ResponseEntity<>(restResponse, HttpStatus.BAD_REQUEST);
+    }
 }

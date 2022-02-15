@@ -22,6 +22,6 @@ public class TransactionHistory extends BaseEntity{
     private long orderId;
     private String paymentType;
     private String status;
-    private BigDecimal amount;
+    private double amount;
     private String message;
 }
