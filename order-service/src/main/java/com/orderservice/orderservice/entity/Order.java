@@ -23,7 +23,7 @@ public class Order extends BaseEntity{
     @Column(name = "order_id",columnDefinition = "VARCHAR(60)")
     private String orderId;
 
-    private long userId;
+    private String userId;
     private double totalPrice;
     private String address;
     private String name;

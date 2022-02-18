@@ -26,7 +26,7 @@ public class CartItemServiceImpl implements CartItemService{
     }
 
     @Override
-    public List<CartItem> findAllCarItemsByCartId(long cartId) {
+    public List<CartItem> findAllCartItemsByCartId(long cartId) {
         return cartItemRepository.findAllByCartId(cartId);
     }
 

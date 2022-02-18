@@ -203,8 +203,8 @@ public class CartController {
         if(accessToken.equals(userToken)){
             Optional<Cart> userCart = cartService.findCartByUserId(accessToken);
             if(userCart.isPresent()){
-                List<CartItem> userCartItemList = cartItemService.findAllCarItemsByCartId(userCart.get().getId());
-                if(userCartItemList == null){
+                List<CartItem> userCartItemList = cartItemService.findAllCartItemsByCartId(userCart.get().getId());
+                if(userCartItemList.isEmpty()){
                     return new ResponseEntity<>(RESTResponse.success(""
                             , "Cart is empty!"), HttpStatus.OK);
                 }

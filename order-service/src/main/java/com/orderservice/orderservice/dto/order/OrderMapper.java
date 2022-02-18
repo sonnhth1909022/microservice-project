@@ -16,5 +16,5 @@ public interface OrderMapper {
     //OrderDto mappers
     Order orderDtoToOrder(OrderDto orderDto);
     OrderDto orderToOrderDto(Order order);
-    Set<OrderDto> lsOrderToOrderDto(Set<Order> orders);
+    List<OrderDto> lsOrderToOrderDto(List<Order> orders);
 }
