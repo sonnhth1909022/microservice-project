@@ -46,7 +46,8 @@ public class CartController {
 
     @PostMapping("add")
     public ResponseEntity<?> addToCart(@RequestHeader("token") String accessToken, @RequestParam long productId) {
-        System.out.println(userToken);
+        System.out.println(accessToken);
+        userToken = accessToken;
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")

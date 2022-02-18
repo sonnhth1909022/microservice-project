@@ -13,6 +13,7 @@ import com.orderservice.orderservice.ulti.RESTResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,9 +28,6 @@ public class OrderController {
     private OrderService orderService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private CartService cartService;
 
     @Autowired
@@ -41,8 +39,9 @@ public class OrderController {
     @Autowired
     private OrderDetailService orderDetailService;
 
+    @Transactional
     @PostMapping("submit")
-    public ResponseEntity<?> submitOrder(@RequestHeader("token") String accessToken, @RequestBody OrderPrepareDto orderPrepareDto){
+    public ResponseEntity submitOrder(@RequestHeader("token") String accessToken, @RequestBody OrderPrepareDto orderPrepareDto){
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")
@@ -79,7 +78,7 @@ public class OrderController {
                 }
                 orderSave.setTotalPrice(totalPrice);
                 orderSave.setOrderStatus(OrderStatus.PENDING.name());
-                orderService.getOrderById(orderSave.getOrderId());
+                orderService.findOrderById(orderSave.getOrderId());
                 orderService.saveOrder(orderSave);
 
                 cartItemService.deleteAllCartItemsByCartId(userCart.get().getId());

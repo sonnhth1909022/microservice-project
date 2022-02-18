@@ -12,7 +12,7 @@ import java.util.Set;
 public class OrderDto {
     private String orderId;
 
-    private long userId;
+    private String userId;
     private double totalPrice;
     private String address;
     private String name;
