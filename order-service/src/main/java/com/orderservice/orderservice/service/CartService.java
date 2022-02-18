@@ -1,16 +1,11 @@
 package com.orderservice.orderservice.service;
 
-import com.orderservice.orderservice.dto.cart.CartItemDto;
-import com.orderservice.orderservice.entity.CartItem;
+import com.orderservice.orderservice.entity.Cart;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.Optional;
 
 public interface CartService {
-    HashMap<Long, CartItem> addToCart(CartItem cartItem);
-
-    void clear();
-
-    HashMap<Long, CartItem> getDetail();
-    HashMap<Long, CartItem> updateCart(CartItemDto cartItemDto);
+    Cart saveCart(Cart cart);
+    Optional<Cart> findCartByUserId(String userId);
+    Optional<Cart> findCartById(long id);
 }

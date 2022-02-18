@@ -7,10 +7,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItemDto {
+public class CartUpdateDto {
     private long productId;
-    private String productName;
     private int quantity;
-    private String thumbnail;
-    private double unitPrice;
 }

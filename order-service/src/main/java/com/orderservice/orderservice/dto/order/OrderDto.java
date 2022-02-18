@@ -1,9 +1,7 @@
 package com.orderservice.orderservice.dto.order;
 
-import com.orderservice.orderservice.entity.OrderDetail;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.util.Set;
 
 @Getter

@@ -1,6 +1,6 @@
-package com.orderservice.orderservice.dto.order;
+package com.orderservice.orderservice.dto.cart;
 
-import com.orderservice.orderservice.entity.Order;
+import com.orderservice.orderservice.entity.Cart;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValueMappingStrategy;
@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
-public interface OrderMapper {
-    OrderMapper INSTANCE = Mappers.getMapper(OrderMapper.class);
+public interface CartMapper {
+    CartMapper INSTANCE = Mappers.getMapper(CartMapper.class);
 
-    //OrderDto mappers
-    Order orderDtoToOrder(OrderDto orderDto);
-    OrderDto orderToOrderDto(Order order);
-    Set<OrderDto> lsOrderToOrderDto(Set<Order> orders);
+    //CartDto mappers
+    Cart cartDtoToCart(CartDto cartDto);
+    CartDto cartToCartDto(Cart cart);
+    Set<CartDto> lsCartToCartDto(Set<Cart> carts);
 }

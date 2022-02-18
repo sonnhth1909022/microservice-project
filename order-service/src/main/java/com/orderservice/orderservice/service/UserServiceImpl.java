@@ -11,6 +11,8 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService{
 
+    public static String userToken = "";
+
     @Autowired
     private UserRepository userRepository;
 
@@ -28,4 +30,11 @@ public class UserServiceImpl implements UserService{
     public Optional<User> findUserById(String id) {
         return userRepository.findByUserId(id);
     }
+
+    @Override
+    public Optional<User> findUserByUserNameAndPassword(String userName, String password) {
+        return userRepository.findByUserNameAndAndPassword(userName, password);
+    }
+
+
 }

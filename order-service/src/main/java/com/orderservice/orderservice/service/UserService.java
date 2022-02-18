@@ -9,4 +9,5 @@ public interface UserService {
     User saveUser(User user);
     List<User> getAllUsers();
     Optional<User> findUserById(String id);
+    Optional<User> findUserByUserNameAndPassword(String userName, String password);
 }

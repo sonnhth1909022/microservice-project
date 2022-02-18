@@ -1,48 +1,30 @@
 package com.orderservice.orderservice.service;
 
-import com.orderservice.orderservice.dto.cart.CartItemDto;
-import com.orderservice.orderservice.entity.CartItem;
+import com.orderservice.orderservice.entity.Cart;
+import com.orderservice.orderservice.repository.CartRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.Optional;
 
 @Service
 public class CartServiceImpl implements CartService{
 
-    public static HashMap<Long, CartItem> cart = new HashMap<>();
+    @Autowired
+    private CartRepository cartRepository;
 
     @Override
-    public HashMap<Long, CartItem> addToCart(CartItem cartItem) {
-        CartItem item = cart.putIfAbsent(cartItem.getProductId(), cartItem);
-        if (cartItem.getQuantity() <= 0) {
-            throw new RuntimeException("quantity must be greater than 0!");
-        }
-        if (item != null) {
-            item.setQuantity(item.getQuantity() + cartItem.getQuantity());
-        }
-        return cart;
+    public Cart saveCart(Cart cart) {
+        return cartRepository.save(cart);
     }
 
     @Override
-    public void clear() {
-        cart.clear();
+    public Optional<Cart> findCartByUserId(String userId) {
+        return cartRepository.findByUserId(userId);
     }
 
     @Override
-    public HashMap<Long, CartItem> getDetail() {
-        return cart;
-    }
-
-    @Override
-    public HashMap<Long, CartItem> updateCart(CartItemDto cartItemDto) {
-        CartItem itemFound = cart.get(cartItemDto.getProductId());
-        if (cartItemDto.getQuantity() <= 0) {
-            throw new RuntimeException("quantity must be greater than 0!");
-        }
-        if (itemFound == null){
-            throw new RuntimeException("Cart item not found!");
-        }
-        itemFound.setQuantity(cartItemDto.getQuantity());
-        return cart;
+    public Optional<Cart> findCartById(long id) {
+        return cartRepository.findById(id);
     }
 }
