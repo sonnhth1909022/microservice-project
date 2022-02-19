@@ -1,0 +1,78 @@
+version: '3.7'
+services:
+  rabbitmq:
+    image: 'rabbitmq:3.6-management'
+    container_name: rabbitmq
+    networks:
+      - microservice-network
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  mysql:
+    image: 'mysql:latest'
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345678
+    volumes:
+      - mysql-datavolume:/var/lib/mysql
+    ports:
+      - '3307:3306'
+    networks:
+      - microservice-network
+
+  order-service:
+    image: 'order-service:latest'
+    build:
+      context: ../order-service
+    container_name: order-service
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_VHOST=/
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=12345678
+      - MYSQL_DATABASE=microservice_orderDB
+    networks:
+      - microservice-network
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp://logstash:5000"
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - '8083:8083'
+    restart: on-failure
+
+  payment-service:
+    image: 'payment-service:latest'
+    build:
+      context: ../payment-service
+    container_name: payment-service
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_VHOST=/
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=12345678
+      - MYSQL_DATABASE=microservice_paymentDB
+    networks:
+      - microservice-network
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp://logstash:5000"
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - '8084:8084'
+    restart: on-failure

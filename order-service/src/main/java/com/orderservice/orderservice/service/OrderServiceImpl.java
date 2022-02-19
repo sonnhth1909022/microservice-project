@@ -30,6 +30,11 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
+    public Order findByOrderIdForRabbit(String orderId) {
+        return orderRepository.findByOrderId(orderId).orElse(null);
+    }
+
+    @Override
     public List<Order> findAllOrdersByUserId(String userId) {
         return orderRepository.findAllByUserId(userId);
     }

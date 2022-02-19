@@ -1,5 +1,6 @@
 package com.orderservice.orderservice.controller;
 
+import com.orderservice.orderservice.common.events.PaymentEvent;
 import com.orderservice.orderservice.dto.order.OrderDto;
 import com.orderservice.orderservice.dto.order.OrderMapper;
 import com.orderservice.orderservice.dto.order.OrderPrepareDto;
@@ -7,9 +8,12 @@ import com.orderservice.orderservice.entity.Cart;
 import com.orderservice.orderservice.entity.CartItem;
 import com.orderservice.orderservice.entity.Order;
 import com.orderservice.orderservice.entity.OrderDetail;
+import com.orderservice.orderservice.enums.InventoryStatus;
 import com.orderservice.orderservice.enums.OrderStatus;
+import com.orderservice.orderservice.enums.PaymentStatus;
 import com.orderservice.orderservice.service.*;
 import com.orderservice.orderservice.ulti.RESTResponse;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +23,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import static com.orderservice.orderservice.queue.Config.*;
 import static com.orderservice.orderservice.service.UserServiceImpl.userToken;
 
 @RestController
 @RequestMapping("api/v1/order/")
+@CrossOrigin("*")
 public class OrderController {
     @Autowired
     private OrderService orderService;
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     private CartItemService cartItemService;
@@ -42,6 +51,7 @@ public class OrderController {
     @Transactional
     @PostMapping("submit")
     public ResponseEntity submitOrder(@RequestHeader("token") String accessToken, @RequestBody OrderPrepareDto orderPrepareDto){
+        userToken = accessToken;
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")
@@ -78,8 +88,20 @@ public class OrderController {
                 }
                 orderSave.setTotalPrice(totalPrice);
                 orderSave.setOrderStatus(OrderStatus.PENDING.name());
-                orderService.findOrderById(orderSave.getOrderId());
-                orderService.saveOrder(orderSave);
+                orderSave.setPaymentStatus(PaymentStatus.PENDING.name());
+                orderSave.setInventoryStatus(InventoryStatus.PENDING.name());
+                if(orderService.findOrderById(orderSave.getOrderId()).isPresent()){
+                    orderService.saveOrder(orderSave);
+                }
+
+                PaymentEvent paymentEvent = new PaymentEvent();
+                paymentEvent.setOrderId(orderSave.getOrderId());
+                paymentEvent.setUserId(orderSave.getUserId());
+                paymentEvent.setTotalPrice(orderSave.getTotalPrice());
+                paymentEvent.setPaymentStatus(orderSave.getPaymentStatus());
+                paymentEvent.setOrderStatus(orderSave.getOrderStatus());
+                rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_ORDER, paymentEvent);
+
 
                 cartItemService.deleteAllCartItemsByCartId(userCart.get().getId());
 
@@ -97,6 +119,7 @@ public class OrderController {
 
     @GetMapping("list")
     public ResponseEntity<?> getAllOrdersByUserId(@RequestHeader("Token") String accessToken){
+        userToken = accessToken;
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")

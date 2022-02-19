@@ -15,6 +15,7 @@ import static com.orderservice.orderservice.service.UserServiceImpl.userToken;
 
 @RestController
 @RequestMapping("api/v1/authentication/")
+@CrossOrigin("*")
 public class LoginController {
 
     @Autowired

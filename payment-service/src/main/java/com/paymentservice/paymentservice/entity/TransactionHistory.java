@@ -19,7 +19,7 @@ public class TransactionHistory extends BaseEntity{
 
     private String senderId;
     private String receiverId;
-    private long orderId;
+    private String orderId;
     private String paymentType;
     private String status;
     private double amount;

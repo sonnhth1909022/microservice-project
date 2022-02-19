@@ -8,8 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDetailDto {
-    private long id;
-    private String orderId;
     private long productId;
     private String productName;
     private int quantity;

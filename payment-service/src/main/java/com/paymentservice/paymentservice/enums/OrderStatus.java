@@ -1,4 +1,4 @@
-package com.orderservice.orderservice.enums;
+package com.paymentservice.paymentservice.enums;
 
 public enum OrderStatus {
     PENDING, //Đơn hàng đang đợi xử lý
