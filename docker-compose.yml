@@ -1,47 +1,53 @@
 version: '3.7'
+networks:
+  microservice-net:
+    external: true
+
 services:
   rabbitmq:
     image: 'rabbitmq:3.6-management'
     container_name: rabbitmq
     networks:
-      - microservice-network
+      - microservice-net
     ports:
       - '5672:5672'
       - '15672:15672'
 
   mysql:
-    image: 'mysql:latest'
+    image: 'mysql:8.0.20'
     container_name: mysql
+#    hostname: mysql
     environment:
+#      - MYSQL_USERNAME=root
+#      - MYSQL_PASSWORD=12345678
       - MYSQL_ROOT_PASSWORD=12345678
-    volumes:
-      - mysql-datavolume:/var/lib/mysql
+#    volumes:
+#      - mysql-datavolume:/var/lib/mysql
     ports:
-      - '3307:3306'
+      - '3308:3306'
     networks:
-      - microservice-network
+      - microservice-net
 
   order-service:
     image: 'order-service:latest'
     build:
-      context: ../order-service
+      context: ../microservice-project-redo/order-service
     container_name: order-service
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_VHOST=/
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASSWORD=guest
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
-      - MYSQL_USERNAME=root
-      - MYSQL_PASSWORD=12345678
-      - MYSQL_DATABASE=microservice_orderDB
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3308/microservice_orderDB?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=UTC&useSSL=false&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=12345678
+
     networks:
-      - microservice-network
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "tcp://logstash:5000"
+      - microservice-net
+#    logging:
+#      driver: syslog
+#      options:
+#        syslog-address: "tcp://logstash:5000"
     depends_on:
       - mysql
       - rabbitmq
@@ -52,27 +58,36 @@ services:
   payment-service:
     image: 'payment-service:latest'
     build:
-      context: ../payment-service
+      context: ../microservice-project-redo/payment-service
     container_name: payment-service
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_VHOST=/
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASSWORD=guest
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
-      - MYSQL_USERNAME=root
-      - MYSQL_PASSWORD=12345678
-      - MYSQL_DATABASE=microservice_paymentDB
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3308/microservice_paymentDB?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=UTC&useSSL=false&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=12345678
+
     networks:
-      - microservice-network
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "tcp://logstash:5000"
+      - microservice-net
+#    logging:
+#      driver: syslog
+#      options:
+#        syslog-address: "tcp://logstash:5000"
     depends_on:
       - mysql
       - rabbitmq
     ports:
       - '8084:8084'
     restart: on-failure
+
+#  phpmyadmin:
+#    image: phpmyadmin
+#    restart: always
+#    ports:
+#      - 8080:8080
+#    environment:
+#      - PMA_ARBITRARY=1
+#    networks:
+#      - microservice-net
