@@ -5,6 +5,7 @@ import com.microservice.inventoryservice.repository.ProviderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,5 +27,10 @@ public class providerServiceImpl implements ProviderService{
     @Override
     public void deleteProviderById(long id) {
         this.providerRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Provider> getAllProviders() {
+        return providerRepository.findAll();
     }
 }

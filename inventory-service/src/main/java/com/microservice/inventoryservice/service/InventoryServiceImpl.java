@@ -5,6 +5,7 @@ import com.microservice.inventoryservice.repository.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,5 +22,10 @@ public class InventoryServiceImpl implements InventoryService{
     @Override
     public Optional<Inventory> findInventoryByProductId(long productId) {
         return inventoryRepository.findByProductId(productId);
+    }
+
+    @Override
+    public List<Inventory> getAllInventory() {
+        return inventoryRepository.findAll();
     }
 }
