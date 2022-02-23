@@ -48,7 +48,7 @@ public class CartController {
     @PostMapping("add")
     public ResponseEntity<?> addToCart(@RequestHeader("token") String accessToken, @RequestParam long productId) {
         System.out.println(accessToken);
-        userToken = accessToken;
+//        userToken = accessToken;
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")
@@ -114,7 +114,7 @@ public class CartController {
 
     @GetMapping("items")
     public ResponseEntity<?> getCart(@RequestHeader("token") String accessToken) {
-        userToken = accessToken;
+//        userToken = accessToken;
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")
@@ -137,7 +137,7 @@ public class CartController {
 
     @PutMapping("update")
     public ResponseEntity<?> updateCart(@RequestHeader("token") String accessToken, @RequestBody CartUpdateDto cartUpdateDto) {
-        userToken = accessToken;
+//        userToken = accessToken;
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")
@@ -169,7 +169,7 @@ public class CartController {
 
     @DeleteMapping("remove")
     public ResponseEntity<?> removeItem(@RequestHeader("token") String accessToken, @RequestParam long productId){
-        userToken = accessToken;
+//        userToken = accessToken;
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")
@@ -200,7 +200,7 @@ public class CartController {
     @Transactional
     @DeleteMapping("clear")
     public ResponseEntity<?> clearCart(@RequestHeader("token") String accessToken){
-        userToken = accessToken;
+//        userToken = accessToken;
         if (userToken == "") {
             return new ResponseEntity<>(new RESTResponse.Error()
                     .checkErrorWithMessage("You must login to do this action!")

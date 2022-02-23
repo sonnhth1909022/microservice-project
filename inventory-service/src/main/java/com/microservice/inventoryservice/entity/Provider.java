@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,4 +23,7 @@ public class Provider extends BaseEntity{
     private String phone;
     private String email;
     private String status;
+
+    @OneToMany(mappedBy="provider")
+    private Set<Inventory> inventories;
 }

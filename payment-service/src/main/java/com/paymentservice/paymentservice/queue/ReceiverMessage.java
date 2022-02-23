@@ -1,6 +1,6 @@
 package com.paymentservice.paymentservice.queue;
 
-import com.paymentservice.paymentservice.common.events.PaymentEvent;
+import com.paymentservice.paymentservice.common.events.OrderEvent;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ public class ReceiverMessage {
     private ConsumerService consumerService;
 
     @RabbitListener(queues = {QUEUE_ORDER})
-    public void getOrderInfo(PaymentEvent paymentEvent) {
-        consumerService.handlerPayment(paymentEvent);
+    public void getOrderInfo(OrderEvent orderEvent) {
+        consumerService.handlerPayment(orderEvent);
     }
 }

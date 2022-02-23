@@ -1,18 +1,22 @@
-package com.paymentservice.paymentservice.common.events;
+package com.microservice.inventoryservice.common.events;
 
 import lombok.*;
+
+import java.util.Set;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class PaymentEvent {
+public class OrderEvent {
     private String orderId;
     private String userId;
     private double totalPrice;
     private String paymentStatus;
     private String orderStatus;
+    private String inventoryStatus;
     private String message;
     private String queueName;
+    private Set<OrderDetailEvent> orderItems;
 }

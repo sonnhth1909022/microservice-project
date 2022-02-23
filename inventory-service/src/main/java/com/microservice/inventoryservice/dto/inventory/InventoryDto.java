@@ -10,4 +10,5 @@ import lombok.*;
 public class InventoryDto {
     private long productId;
     private int stockQuantity;
+    private long providerId;
 }

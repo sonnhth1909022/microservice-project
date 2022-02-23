@@ -1,8 +1,13 @@
 package com.microservice.inventoryservice.controller;
 
 import com.microservice.inventoryservice.dto.inventory.InventoryDto;
+import com.microservice.inventoryservice.entity.ImportExportHistory;
 import com.microservice.inventoryservice.entity.Inventory;
+import com.microservice.inventoryservice.entity.Provider;
+import com.microservice.inventoryservice.enums.InventoryType;
+import com.microservice.inventoryservice.service.ImportExportService;
 import com.microservice.inventoryservice.service.InventoryService;
+import com.microservice.inventoryservice.service.ProviderService;
 import com.microservice.inventoryservice.ulti.RESTResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +23,12 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
+    @Autowired
+    private ImportExportService importExportService;
+
+    @Autowired
+    private ProviderService providerService;
+
 
     @GetMapping("list")
     public ResponseEntity<?> getAllInventoryProducts(){
@@ -26,13 +37,20 @@ public class InventoryController {
     }
 
     @PostMapping("add")
-    public ResponseEntity<?> createProduct(@RequestBody InventoryDto inventoryDto){
+    public ResponseEntity<?> addProductToInventory(@RequestBody InventoryDto inventoryDto){
         Inventory inventory = new Inventory();
-        inventory.setProductId(inventoryDto.getProductId());
-        inventory.setStockQuantity(inventoryDto.getStockQuantity());
-        inventoryService.saveInventory(inventory);
-        return new ResponseEntity<>(RESTResponse.success(inventory
-                ,"add inventory successful!"), HttpStatus.OK);
+        Optional<Provider> provider = providerService.findProviderById(inventoryDto.getProviderId());
+        if(provider.isPresent()){
+            inventory.setProductId(inventoryDto.getProductId());
+            inventory.setStockQuantity(inventoryDto.getStockQuantity());
+            inventory.setProviderId(provider.get().getId());
+            inventoryService.saveInventory(inventory);
+            return new ResponseEntity<>(RESTResponse.success(inventory
+                    ,"add product inventory successful!"), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new RESTResponse.Error()
+                .checkErrorWithMessage("Provider Id not found!")
+                .build(), HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("update/stock")
@@ -46,6 +64,15 @@ public class InventoryController {
             }
             inventory.get().setStockQuantity(stockQuantity);
             inventoryService.saveInventory(inventory.get());
+
+            ImportExportHistory history = new ImportExportHistory();
+            history.setProductId(inventory.get().getProductId());
+            history.setProviderId(inventory.get().getProviderId());
+            history.setQuantity(stockQuantity);
+            history.setType(InventoryType.IMPORT.name());
+            history.setOrderId("NONE");
+            importExportService.saveHistory(history);
+
             return new ResponseEntity<>(RESTResponse.success(inventory
                     ,"update stock successful!"), HttpStatus.OK);
         }

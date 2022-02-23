@@ -18,4 +18,11 @@ public class Inventory extends BaseEntity{
     private long productId;
 
     private int stockQuantity;
+
+    @Column(name="provider_id")
+    private long providerId;
+
+    @ManyToOne
+    @JoinColumn(name = "provider_id",insertable = false, updatable = false)
+    private Provider provider;
 }
