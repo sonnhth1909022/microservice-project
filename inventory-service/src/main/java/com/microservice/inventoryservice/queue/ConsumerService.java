@@ -13,14 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.microservice.inventoryservice.queue.Config.*;
 
 @Service
 public class ConsumerService {
+
+    public static Set<OrderDetailEvent> tempReturnItems = new HashSet<>();
 
     @Autowired
     private InventoryService inventoryService;
@@ -32,58 +32,63 @@ public class ConsumerService {
     private ImportExportService importExportService;
 
     @Transactional
-    void handleInventoryCheck(OrderEvent orderEvent){
+    void handleInventoryCheck(OrderEvent orderEvent) {
         orderEvent.setQueueName(QUEUE_INVENTORY);
-        if (orderEvent.getInventoryStatus().equals(InventoryStatus.PENDING.name())){
+        if (orderEvent.getInventoryStatus().equals(InventoryStatus.PENDING.name())) {
             handleInventoryPending(orderEvent);
+        }
+        if (orderEvent.getInventoryStatus().equals(InventoryStatus.OUT_OF_STOCK.name())) {
+            handleInventoryOutOfStock(orderEvent);
         }
     }
 
-    void handleInventoryPending(OrderEvent orderEvent){
+    @Transactional
+    void handleInventoryPending(OrderEvent orderEvent) {
         Set<OrderDetailEvent> orderItems = orderEvent.getOrderItems();
-        for (OrderDetailEvent item : orderItems){
+        for (OrderDetailEvent item : orderItems) {
             Optional<Inventory> inventory = inventoryService.findInventoryByProductId(item.getProductId());
-            if (inventory.isPresent()){
-                if(inventory.get().getStockQuantity() < item.getQuantity()){
+            if (inventory.isPresent()) {
+                if (inventory.get().getStockQuantity() < item.getQuantity()) {
                     orderEvent.setMessage("Out of stock!");
                     orderEvent.setInventoryStatus(InventoryStatus.OUT_OF_STOCK.name());
-                    rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_ORDER, orderEvent);
                     return;
                 }
                 inventory.get().setStockQuantity(inventory.get().getStockQuantity() - item.getQuantity());
-
-                ImportExportHistory exportHistory = new ImportExportHistory();
-                exportHistory.setOrderId(orderEvent.getOrderId());
-                exportHistory.setProductId(item.getProductId());
-                exportHistory.setProviderId(inventory.get().getProviderId());
-                exportHistory.setQuantity(item.getQuantity());
-                exportHistory.setType(InventoryType.EXPORT.name());
-
-                importExportService.saveHistory(exportHistory);
                 inventoryService.saveInventory(inventory.get());
+                tempReturnItems.add(item);
             }
         }
 
-        if(!orderEvent.getInventoryStatus().equals(InventoryStatus.OUT_OF_STOCK.name())){
+        if (!orderEvent.getInventoryStatus().equals(InventoryStatus.OUT_OF_STOCK.name())) {
             orderEvent.setMessage("Inventory Check Successful!");
             orderEvent.setInventoryStatus(InventoryStatus.SUCCESS.name());
+            Set<OrderDetailEvent> exportedItems = orderEvent.getOrderItems();
+            for (OrderDetailEvent item: exportedItems){
+                Optional<Inventory> inventory = inventoryService.findInventoryByProductId(item.getProductId());
+                if (inventory.isPresent()){
+                    ImportExportHistory exportHistory = new ImportExportHistory();
+                    exportHistory.setOrderId(orderEvent.getOrderId());
+                    exportHistory.setProductId(item.getProductId());
+                    exportHistory.setProviderId(inventory.get().getProviderId());
+                    exportHistory.setQuantity(item.getQuantity());
+                    exportHistory.setType(InventoryType.EXPORT.name());
+                    importExportService.saveHistory(exportHistory);
+                }
+            }
             rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_ORDER, orderEvent);
         }
 
-        // Return items quantity to stockQuantity in Inventory when inventory is OUT_OF_STOCK
-        // Reason: even though inventory status is set to OUT_OF_STOCK as soon as there is one
-        // item not qualify "stockQuantity > quantity", other items are already saved to database.
-        // So we need to revert this action by adding it back to stock.
-        if(orderEvent.getInventoryStatus().equals(InventoryStatus.OUT_OF_STOCK.name())){
-            List<ImportExportHistory> historyItems = importExportService.getAllHistoriesByOrderId(orderEvent.getOrderId());
-            for (ImportExportHistory item : historyItems){
-                Optional<Inventory> inventory = inventoryService.findInventoryByProductId(item.getProductId());
-                if(inventory.isPresent()){
-                    inventory.get().setStockQuantity(inventory.get().getStockQuantity() + item.getQuantity());
-                    inventoryService.saveInventory(inventory.get());
-                }
+    }
+
+    @Transactional
+    void handleInventoryOutOfStock(OrderEvent orderEvent) {
+        for (OrderDetailEvent item : tempReturnItems) {
+            Optional<Inventory> inventory = inventoryService.findInventoryByProductId(item.getProductId());
+            if (inventory.isPresent()) {
+                inventory.get().setStockQuantity(item.getQuantity() + inventory.get().getStockQuantity());
+                inventoryService.saveInventory(inventory.get());
             }
-            importExportService.deleteAllHistoryByOrderId(orderEvent.getOrderId());
         }
+        rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_ORDER, orderEvent);
     }
 }
