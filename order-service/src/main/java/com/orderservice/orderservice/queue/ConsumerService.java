@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.orderservice.orderservice.queue.Config.QUEUE_INVENTORY;
+import static com.orderservice.orderservice.queue.Config.QUEUE_PAYMENT;
+
 @Service
 @Log4j2
 public class ConsumerService {
@@ -16,12 +19,20 @@ public class ConsumerService {
     private OrderService orderService;
 
     @Transactional
-    void handlerMessagePayment(OrderEvent orderEvent){
+    void handlerPaymentAndInventoryMessages(OrderEvent orderEvent){
             Order checkOrder = orderService.findByOrderIdForRabbit(orderEvent.getOrderId());
-            if(checkOrder != null){
+            if(checkOrder == null){
+                log.error("Order not found!");
+                return;
+            }
+            if(orderEvent.getQueueName().equals(QUEUE_PAYMENT)){
                 checkOrder.setPaymentStatus(orderEvent.getPaymentStatus());
                 orderService.saveOrder(checkOrder);
             }
-            log.error("Order not found!");
+            if(orderEvent.getQueueName().equals(QUEUE_INVENTORY)){
+                checkOrder.setInventoryStatus(orderEvent.getInventoryStatus());
+                orderService.saveOrder(checkOrder);
+            }
+
     }
 }

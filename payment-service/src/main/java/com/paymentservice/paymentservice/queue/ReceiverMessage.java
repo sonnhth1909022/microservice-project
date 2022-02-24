@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static com.paymentservice.paymentservice.queue.Config.QUEUE_ORDER;
+import static com.paymentservice.paymentservice.queue.Config.QUEUE_PAYMENT;
 
 @Component
 public class ReceiverMessage {
@@ -13,7 +14,7 @@ public class ReceiverMessage {
     @Autowired
     private ConsumerService consumerService;
 
-    @RabbitListener(queues = {QUEUE_ORDER})
+    @RabbitListener(queues = {QUEUE_PAYMENT})
     public void getOrderInfo(OrderEvent orderEvent) {
         consumerService.handlerPayment(orderEvent);
     }

@@ -24,7 +24,6 @@ public class ImportExportHistory {
     private long productId;
     private String orderId;
     private long providerId;
-    private String status;
 
     private LocalDate createdAt;
 
