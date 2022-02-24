@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ImportExportServiceImpl implements ImportExportService{
@@ -19,17 +20,27 @@ public class ImportExportServiceImpl implements ImportExportService{
     }
 
     @Override
+    public Optional<ImportExportHistory> findExportHistoryByOrderIdAndProductId(String orderId, long productId) {
+        return importExportRepository.findByOrderIdAndProductId(orderId, productId);
+    }
+
+    @Override
     public List<ImportExportHistory> getAllHistories() {
         return importExportRepository.findAll();
     }
 
     @Override
-    public List<ImportExportHistory> getAllHistoriesByOrderId(String orderId) {
+    public List<ImportExportHistory> findAllHistoriesByOrderId(String orderId) {
         return importExportRepository.findAllByOrderId(orderId);
     }
 
     @Override
     public void deleteAllHistoryByOrderId(String orderId) {
         this.importExportRepository.deleteAllByOrderId(orderId);
+    }
+
+    @Override
+    public void deleteHistoryByOrderIdAndProductId(String orderId, long productId) {
+        this.importExportRepository.deleteByOrderIdAndProductId(orderId, productId);
     }
 }
