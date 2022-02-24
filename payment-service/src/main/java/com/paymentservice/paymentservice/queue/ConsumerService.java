@@ -56,7 +56,7 @@ public class ConsumerService {
                 failTransaction.setMessage("Not Enough Fund to proceed!");
                 transactionService.saveTransaction(failTransaction);
 
-                rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_ORDER, orderEvent);
+                rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_PAYMENT, orderEvent);
             }
             else if (balance > totalPrice){
                 orderEvent.setMessage("Payment Success!");
@@ -76,7 +76,7 @@ public class ConsumerService {
                 transactionService.saveTransaction(successTransaction);
 
                 System.out.println(orderEvent);
-                rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_ORDER, orderEvent);
+                rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_PAYMENT, orderEvent);
             }
         }
     }
@@ -88,7 +88,7 @@ public class ConsumerService {
         }
         orderEvent.setMessage("Wallet not found!");
         orderEvent.setPaymentStatus(PaymentStatus.WALLET_NOT_FOUND.name());
-        rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_ORDER, orderEvent);
+        rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_PAYMENT, orderEvent);
         return null;
     }
 }

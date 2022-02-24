@@ -1,7 +1,6 @@
 package com.microservice.inventoryservice.controller;
 
 import com.microservice.inventoryservice.dto.inventory.InventoryDto;
-import com.microservice.inventoryservice.dto.inventory.InventoryMapper;
 import com.microservice.inventoryservice.entity.ImportExportHistory;
 import com.microservice.inventoryservice.entity.Inventory;
 import com.microservice.inventoryservice.entity.Provider;
@@ -30,14 +29,10 @@ public class InventoryController {
     @Autowired
     private ProviderService providerService;
 
-    @Autowired
-    private InventoryMapper inventoryMapper;
-
 
     @GetMapping("list")
     public ResponseEntity<?> getAllInventoryProducts(){
-        return new ResponseEntity<>(RESTResponse.success(inventoryMapper.INSTANCE
-                        .lsInventoryToInventoryDto(inventoryService.getAllInventory())
+        return new ResponseEntity<>(RESTResponse.success(inventoryService.getAllInventory()
                 ,"get all inventory products successful!"), HttpStatus.OK);
     }
 
@@ -50,7 +45,7 @@ public class InventoryController {
             inventory.setStockQuantity(inventoryDto.getStockQuantity());
             inventory.setProviderId(provider.get().getId());
             inventoryService.saveInventory(inventory);
-            return new ResponseEntity<>(RESTResponse.success(inventoryDto
+            return new ResponseEntity<>(RESTResponse.success(inventory
                     ,"add product inventory successful!"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new RESTResponse.Error()
@@ -59,27 +54,26 @@ public class InventoryController {
     }
 
     @PutMapping("update/stock")
-    public ResponseEntity<?> updateStock(@RequestParam long productId, @RequestParam int quantity){
+    public ResponseEntity<?> updateStock(@RequestParam long productId, @RequestParam int stockQuantity){
         Optional<Inventory> inventory = inventoryService.findInventoryByProductId(productId);
         if(inventory.isPresent()){
-            if(quantity <= 0){
+            if(stockQuantity <= 0){
                 return new ResponseEntity<>(new RESTResponse.Error()
                         .badRequestWithMessage("quantity must be greater 0!")
                         .build(), HttpStatus.BAD_REQUEST);
             }
-            inventory.get().setStockQuantity(quantity + inventory.get().getStockQuantity());
+            inventory.get().setStockQuantity(stockQuantity);
             inventoryService.saveInventory(inventory.get());
 
             ImportExportHistory history = new ImportExportHistory();
             history.setProductId(inventory.get().getProductId());
             history.setProviderId(inventory.get().getProviderId());
-            history.setQuantity(quantity);
+            history.setQuantity(stockQuantity);
             history.setType(InventoryType.IMPORT.name());
             history.setOrderId("NONE");
             importExportService.saveHistory(history);
 
-
-            return new ResponseEntity<>(RESTResponse.success(quantity
+            return new ResponseEntity<>(RESTResponse.success(inventory
                     ,"update stock successful!"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new RESTResponse.Error()
