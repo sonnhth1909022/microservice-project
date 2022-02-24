@@ -1,4 +1,4 @@
-package com.paymentservice.paymentservice.queue;
+package com.microservice.inventoryservice.queue;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

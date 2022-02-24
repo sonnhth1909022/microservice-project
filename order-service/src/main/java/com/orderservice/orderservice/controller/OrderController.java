@@ -113,7 +113,8 @@ public class OrderController {
                     setOrderItems.add(orderEventItem);
                 }
                 orderEvent.setOrderItems(setOrderItems);
-                rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_ORDER, orderEvent);
+                rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_PAYMENT, orderEvent);
+                rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, ROUTING_KEY_INVENTORY, orderEvent);
 
 
                 cartItemService.deleteAllCartItemsByCartId(userCart.get().getId());

@@ -3,6 +3,7 @@ package com.microservice.inventoryservice.controller;
 import com.microservice.inventoryservice.dto.provider.ProviderDto;
 import com.microservice.inventoryservice.dto.provider.ProviderMapper;
 import com.microservice.inventoryservice.entity.Provider;
+import com.microservice.inventoryservice.enums.ProviderStatus;
 import com.microservice.inventoryservice.service.ProviderService;
 import com.microservice.inventoryservice.ulti.RESTResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +25,15 @@ public class ProviderController {
 
     @GetMapping("list")
     public ResponseEntity<?> getAllProviders(){
-        return new ResponseEntity<>(RESTResponse.success(providerService.getAllProviders()
+        return new ResponseEntity<>(RESTResponse.success(providerMapper.INSTANCE
+                        .lsProviderToProviderDtoRes(providerService.getAllProviders())
                 ,"get all providers successful!"), HttpStatus.OK);
     }
 
     @PostMapping("add")
     public ResponseEntity<?> addProvider(@RequestBody ProviderDto providerDto){
         Provider provider = providerMapper.INSTANCE.providerDtoToProvider(providerDto);
+        provider.setStatus(ProviderStatus.ACTIVE.name());
         providerService.saveProvider(provider);
         return new ResponseEntity<>(RESTResponse.success(providerDto
                 ,"get all providers successful!"), HttpStatus.OK);
